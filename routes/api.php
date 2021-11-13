@@ -1,7 +1,11 @@
 <?php
 
+
+use App\Http\Controllers\RecipelistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,3 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/', function()  {
     return 'API working';
 });
+
+Route::get('/recipelist', [RecipelistController::class, 'index']);
+Route::post('/recipelist', [RecipelistController::class, 'store']);
+Route::get('/recipelist/{id}', [RecipelistController::class, 'show']);
