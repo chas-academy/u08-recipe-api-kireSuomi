@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\RecipeList;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RecipelistController extends Controller
 {
@@ -11,9 +12,11 @@ class RecipelistController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return RecipeList::All();
+        $userID =  auth()->user()['id'];
+        $lists = RecipeList::where('userID', $userID)->get();
+        return $lists ;
     }
 
     /**
@@ -24,7 +27,17 @@ class RecipelistController extends Controller
      */
     public function store(Request $request)
     {
-        return RecipeList::create($request->all());
+        $newList = false;
+
+        if ($request['name'] !== '') {
+            $newList = RecipeList::create([
+                'name' => $request['name'],
+                'userID' => auth()->user()['id'],
+                'recipes' => json_encode([])
+            ]);
+        }
+  
+        return $newList;
     }
 
     /**
@@ -47,8 +60,42 @@ class RecipelistController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $recipelist = RecipeList::find($id);
+        $recipelist->update($request->all());
+        return $recipelist;
     }
+
+    public function update_add(Request $request, $id) {
+
+        $recipelist = RecipeList::firstWhere(['id' => $id]);
+
+        $recipies = json_decode($recipelist['recipes']);
+
+        $recipies[] = $request['recipeID'];
+        $recipelist['recipes'] = json_encode($recipies);
+
+        $r = $recipelist->update([$recipelist]);
+
+        return  $recipelist;
+    }
+
+    public function update_remove(Request $request, $id) {
+
+        $recipelist = RecipeList::firstWhere(['id' => $id]);
+
+        $recipies = json_decode($recipelist['recipes']);
+
+        $newArr = [];
+        foreach ($recipies as $key => $value) {
+            if ($value !== $request['recipeID']) $newArr[] = $value;
+        }
+
+
+        $recipelist['recipes'] = json_encode($newArr);
+        $r = $recipelist->update([$recipelist]);
+
+        return  $recipelist;
+    }   
 
     /**
      * Remove the specified resource from storage.
@@ -58,6 +105,6 @@ class RecipelistController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return RecipeList::destroy($id);
     }
 }
