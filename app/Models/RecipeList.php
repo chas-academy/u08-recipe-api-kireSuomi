@@ -10,6 +10,6 @@ class RecipeList extends Model
     use HasFactory;
     protected $fillable = [
         'name',
-        'recipes'
+        'userID'
     ];
 }
