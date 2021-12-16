@@ -16,7 +16,8 @@ class CreateRecipeListsTable extends Migration
         Schema::create('recipe_lists', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('recipes');
+            $table->string('recipes')->default('');
+            $table->string('userID');
             $table->timestamps();
         });
     }
